@@ -1,5 +1,5 @@
 {
-	"name": "internet/intercache",
+	"name": "Internet/InterCache",
 	"description": "A lightweight PHP cross-request caching library.",
 	"license": "MIT",
 	"keywords": ["cache", "caching"],
