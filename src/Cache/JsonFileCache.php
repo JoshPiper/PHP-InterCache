@@ -17,6 +17,7 @@ class JsonFileCache extends ListCache {
 
 		try {
 			$cnt = gzuncompress($cnt);
+		} catch (\Exception $ex){
 		} finally {
 			$this->data = json_decode($cnt, true);
 		}
