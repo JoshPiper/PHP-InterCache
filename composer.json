@@ -1,0 +1,11 @@
+{
+	"name": "internet/intercache",
+	"description": "A lightweight PHP cross-request caching library.",
+	"license": "MIT",
+	"keywords": ["cache", "caching"],
+	"autoload": {
+		"psr-4": {
+			"Internet\\InterCache\\": "src/"
+		}
+	}
+}
