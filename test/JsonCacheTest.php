@@ -14,24 +14,14 @@ final class JsonCacheTest extends TestCase {
 	 */
 	public function testIsCreatable(): JsonFileCache{
 		$cache = new JsonFileCache(dirname(__DIR__) . '/cache/.testcache');
-		$this->assertInstanceOf(JsonFileCache::class, $cache);
+		$cache->load();
 
+		$this->assertInstanceOf(JsonFileCache::class, $cache);
 		return $cache;
 	}
 
 	/**
 	 * @depends testIsCreatable
-	 * @param JsonFileCache $cache
-	 * @return JsonFileCache
-	 */
-	public function testDataLoads(JsonFileCache $cache): JsonFileCache {
-		$cache->load();
-
-		return $cache;
-	}
-
-	/**
-	 * @depends testDataLoads
 	 * @param JsonFileCache $cache
 	 * @return JsonFileCache
 	 * @throws CacheStoreException
