@@ -4,6 +4,7 @@
 # Cache / Composer files
 cache/
 vendor/
+composer.phar
 
 # Env Vars
 .env
