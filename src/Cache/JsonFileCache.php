@@ -2,9 +2,17 @@
 
 namespace Internet\InterCache\Cache;
 
+/** JsonFileCache implements a Cache, with a json file backing store (with optional compression).
+ * Class JsonFileCache
+ * @package Internet\InterCache\Cache
+ */
 class JsonFileCache extends ListCache {
 	private $filePath = './.cachestore';
 
+	/**
+	 * JsonFileCache constructor.
+	 * @param string $filePath
+	 */
 	public function __construct(string $filePath = '.cachestore'){
 		$rp = realpath($filePath);
 		if ($rp){$this->filePath = $rp;}
