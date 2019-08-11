@@ -30,6 +30,9 @@ final class JsonCacheTest extends TestCase {
 		$cache->store("validtest", "value1", 10);
 		$cache->store("invalidtest", "value2", -10);
 
+		// Otherwise PHPUnit complains about empty tests.
+		$this->assertTrue(true);
+
 		return $cache;
 	}
 
@@ -40,12 +43,12 @@ final class JsonCacheTest extends TestCase {
 	 */
 	public function testVarRetrieves(JsonFileCache $cache): JsonFileCache {
 		$result = $cache->pull("validtest");
-		$this->assertInstanceOf(CacheResult::class, $this);
+		$this->assertInstanceOf(CacheResult::class, $result);
 		$this->assertEquals($result->expired(), false);
 		$this->assertEquals($result->value(), "value1");
 
 		$result = $cache->pull("invalidtest");
-		$this->assertInstanceOf(CacheResult::class, $this);
+		$this->assertInstanceOf(CacheResult::class, $result);
 		$this->assertEquals($result->expired(), true);
 		$this->assertEquals($result->value(), "value2");
 
@@ -59,6 +62,7 @@ final class JsonCacheTest extends TestCase {
 	 */
 	public function testSaves(JsonFileCache $cache): JsonFileCache{
 		$cache->save();
+		$this->assertTrue(true);
 		return $cache;
 	}
 }
