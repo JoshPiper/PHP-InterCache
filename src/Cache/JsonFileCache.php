@@ -10,7 +10,9 @@ class JsonFileCache extends ListCache {
 	}
 
 	public function load(): void {
-		$cnt = file_get_contents($this->filePath);
+		$cnt = @file_get_contents($this->filePath);
+		if ($cnt === false){return;}
+
 		try {
 			$cnt = gzuncompress($cnt);
 		} finally {
