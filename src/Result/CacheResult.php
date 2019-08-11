@@ -1,6 +1,6 @@
 <?php
 
-namespace Internet\InterCache;
+namespace Internet\InterCache\Result;
 
 /**
  * The cache interface allows overwriting of individual implementations of cache results.
