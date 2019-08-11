@@ -5,6 +5,7 @@
 /cache/
 /vendor/
 composer.phar
+.cachestore
 
 # Env Vars
 .env
