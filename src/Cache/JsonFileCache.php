@@ -31,6 +31,11 @@ class JsonFileCache extends ListCache {
 			$cnt = gzcompress($cnt, 9);
 		}
 
+		$dir = dirname($this->filePath);
+		if (!is_dir($dir)){
+			mkdir($dir, 0775, true);
+		}
+
 		file_put_contents($this->filePath, $cnt);
 	}
 }
