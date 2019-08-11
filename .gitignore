@@ -2,8 +2,8 @@
 .idea/
 
 # Cache / Composer files
-cache/
-vendor/
+/cache/
+/vendor/
 composer.phar
 
 # Env Vars
