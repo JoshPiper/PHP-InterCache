@@ -13,5 +13,9 @@
 	},
 	"scripts": {
 		"wintest": "vendor\\bin\\phpunit.bat --bootstrap %CD%/vendor/autoload.php --testdox test"
+	},
+	"require": {
+		"ext-zlib": "*",
+		"ext-json": "*"
 	}
 }
