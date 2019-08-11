@@ -6,7 +6,9 @@ class JsonFileCache extends ListCache {
 	private $filePath = './.cachestore';
 
 	public function __construct(string $filePath = '.cachestore'){
-		$this->filePath = $filePath;
+		$rp = realpath($filePath);
+		if ($rp){$this->filePath = $rp;}
+
 	}
 
 	public function load(): void {
