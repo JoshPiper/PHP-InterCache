@@ -1,0 +1,9 @@
+# Intellij files
+.idea/
+
+# Cache / Composer files
+cache/
+vendor/
+
+# Env Vars
+.env
