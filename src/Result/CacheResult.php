@@ -11,7 +11,7 @@ interface CacheResult {
 	/** Check if this result has expired.
 	 * @return bool
 	 */
-	public function expired() : bool;
+	public function expired(): bool;
 
 	/** Fetch the value of this result.
 	 * @return mixed
