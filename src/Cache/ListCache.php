@@ -20,10 +20,16 @@ abstract class ListCache implements Cache {
 		return new StdCacheResult($data, $expiry);
 	}
 
+	/** Store a value in the cache.
+	 * @param string $key
+	 * @param mixed $value
+	 * @param int|DateTimeInterface $ttl
+	 * @throws CacheStoreException
+	 */
 	public function store(string $key, $value, $ttl = 60): void{
 		$expiry = false;
 		if (is_numeric($ttl)){
-			$expiry = now() + floatval($ttl);
+			$expiry = time() + floatval($ttl);
 		} elseif ($ttl instanceof DateTimeInterface){
 			$expiry = $ttl->getTimestamp();
 		}
