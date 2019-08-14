@@ -5,7 +5,8 @@
 	"keywords": ["cache", "caching"],
 	"autoload": {
 		"psr-4": {
-			"Internet\\InterCache\\": "src/"
+			"Internet\\InterCache\\": "src/",
+			"Psr\\": "psr/"
 		}
 	},
 	"require-dev": {
