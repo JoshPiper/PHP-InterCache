@@ -7,9 +7,10 @@ namespace Internet\InterCache\Cache;
  * @package Internet\InterCache\Cache
  */
 class JsonFileCache extends ListCache {
-	private $filePath = './.cachestore';
+	private $filePath = './.cachestore.json';
 
 	/**
+	 * Create the cache and load in data from the FS.
 	 * JsonFileCache constructor.
 	 * @param string $filePath
 	 */
@@ -18,39 +19,23 @@ class JsonFileCache extends ListCache {
 		if ($rp){
 			$this->filePath = $rp;
 		}
-	}
 
-	/**
-	 * Load the data store from disk.
-	 */
-	public function load(): void {
 		$cnt = @file_get_contents($this->filePath);
 		if ($cnt === false){return;}
 
-		try {
-			$cnt = gzuncompress($cnt);
-		} catch (\Exception $ex){
-		} finally {
-			$this->data = json_decode($cnt, true);
+		$this->data = json_decode($cnt, true);
+		foreach ($this->data as &$value){
+			$value = unserialize($value);
 		}
 	}
 
-	/**
-	 * Dump the internal data representation to disk.
-	 */
-	public function save(): void {
-		$cnt = json_encode($this->data);
-
-		$env = isset($_ENV['PHP_ENV']) ? $_ENV['PHP_ENV'] : "development";
-		if ($env === 'production' || $env === 'staging'){
-			$cnt = gzcompress($cnt, 9);
+	public function commit(){
+		$data = $this->data;
+		foreach ($data as [$expiry, &$value]){
+			$value = serialize($value);
 		}
 
-		$dir = dirname($this->filePath);
-		if (!is_dir($dir)){
-			mkdir($dir, 0775, true);
-		}
-
-		file_put_contents($this->filePath, $cnt);
+		$data = json_encode($data);
+		file_put_contents($this->filePath, $data);
 	}
 }
