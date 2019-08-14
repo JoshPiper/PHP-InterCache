@@ -20,6 +20,9 @@ class JsonFileCache extends ListCache {
 		}
 	}
 
+	/**
+	 * Load the data store from disk.
+	 */
 	public function load(): void {
 		$cnt = @file_get_contents($this->filePath);
 		if ($cnt === false){return;}
