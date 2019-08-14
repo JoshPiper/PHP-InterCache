@@ -2,11 +2,14 @@
 	"name": "internet/inter-cache",
 	"description": "A lightweight PHP cross-request caching library.",
 	"license": "MIT",
-	"keywords": ["cache", "caching"],
+	"keywords": [
+		"cache",
+		"caching",
+		"psr-6"
+	],
 	"autoload": {
 		"psr-4": {
-			"Internet\\InterCache\\": "src/",
-			"Psr\\": "psr/"
+			"Internet\\InterCache\\": "src/"
 		}
 	},
 	"require-dev": {
@@ -16,6 +19,7 @@
 		"wintest": "vendor\\bin\\phpunit.bat --bootstrap %CD%/vendor/autoload.php --testdox test"
 	},
 	"require": {
+		"psr/cache": "1.0.1",
 		"ext-zlib": "*",
 		"ext-json": "*"
 	}
