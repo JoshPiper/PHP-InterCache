@@ -1,7 +1,7 @@
 <?php
 
 namespace Internet\InterCache\Cache;
-use DateTimeInterface;
+
 use Internet\InterCache\Exceptions\InvalidKeyException;
 use Internet\InterCache\Result\StdCacheResult;
 use Psr\Cache\CacheItemInterface;
@@ -14,43 +14,57 @@ use Psr\Cache\CacheItemPoolInterface;
 abstract class ListCache implements CacheItemPoolInterface {
 	protected $data = [];
 
-	public static function illegalKey($key): bool{
-		return preg_match("/[^\w\-.]/", $key) === 1;
-	}
-
 	/**
 	 * @param string $key
 	 * @return StdCacheResult
 	 * @throws InvalidKeyException
 	 */
 	public function getItem($key): StdCacheResult{
-		if ($this::illegalKey($key)){throw new InvalidKeyException();}
-
+		if ($this::illegalKey($key)){
+			throw new InvalidKeyException();
+		}
 		if (isset($this->data[$key])){
 			[$expiry, $data] = $this->data[$key];
 			return new StdCacheResult($key, $data, $expiry);
-		} else {
-			return new StdCacheResult($key);
 		}
+		return new StdCacheResult($key);
+	}
+
+	/** Check if a key is illegal under PSR-6.
+	 * @param $key string
+	 * @return bool
+	 */
+	public static function illegalKey(string $key): bool{
+		return preg_match("/[^\w\-.]/", $key);
 	}
 
 	/**
-	 * @param array $keys
+	 * @param string[] $keys
 	 * @return array
 	 * @throws InvalidKeyException
 	 */
 	public function getItems(array $keys = []): array{
 		if (count($keys) === 0){
 			return [];
-		} elseif (count(array_filter($keys, [$this, 'illegalKey'])) > 0){
-			throw new InvalidKeyException();
-		} else {
-			return array_map([$this, 'getItem'], $keys);
 		}
+
+		if (count(array_filter($keys, [$this, 'illegalKey'])) > 0){
+			throw new InvalidKeyException();
+		}
+
+		return array_map([$this, 'getItem'], $keys);
 	}
 
+	/**
+	 * @param string $key
+	 * @return bool
+	 * @throws InvalidKeyException
+	 */
 	public function hasItem($key){
-		if ($this::illegalKey($key)){throw new InvalidKeyException();}
+		if ($this::illegalKey($key)){
+			throw new InvalidKeyException();
+		}
+
 		return isset($this->data[$key]);
 	}
 
@@ -59,21 +73,38 @@ abstract class ListCache implements CacheItemPoolInterface {
 		$this->commit();
 	}
 
+	/**
+	 * @param string $key
+	 * @return bool
+	 * @throws InvalidKeyException
+	 */
 	public function deleteItem($key){
-		if ($this::illegalKey($key)){throw new InvalidKeyException();}
+		if ($this::illegalKey($key)){
+			throw new InvalidKeyException();
+		}
+
+		unset($this->data[$key]);
+
 		$this->commit();
 		return true;
 	}
 
+	/**
+	 * @param array $keys
+	 * @return array|bool
+	 * @throws InvalidKeyException
+	 */
 	public function deleteItems(array $keys){
 		if (count($keys) === 0){
 			return [];
-		} elseif (count(array_filter($keys, [$this, 'illegalKey'])) > 0){
-			throw new InvalidKeyException();
-		} else {
-			array_map([$this, 'deleteItem'], $keys);
-			return true;
 		}
+
+		if (count(array_filter($keys, [$this, 'illegalKey'])) > 0){
+			throw new InvalidKeyException();
+		}
+
+		array_map([$this, 'deleteItem'], $keys);
+		return true;
 	}
 
 	public function save(CacheItemInterface $item){
@@ -82,6 +113,7 @@ abstract class ListCache implements CacheItemPoolInterface {
 	}
 
 	public function saveDeferred(CacheItemInterface $item){
+		/** @var $item StdCacheResult */
 		$this->data[$item->getKey()] = [$item->getExpiry(), $item->get()];
 	}
 }
