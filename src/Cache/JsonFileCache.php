@@ -26,9 +26,15 @@ class JsonFileCache extends ListCache {
 		}
 
 		$this->data = json_decode($cnt, true);
-		foreach ($this->data as &$value){
-			$value = unserialize($value);
+		$now = time();
+		foreach ($this->data as $key => [$expiry, &$value]){
+			if ($expiry && $expiry < $now){
+				unset($this->data[$key]);
+			} else {
+				$value = unserialize($value);
+			}
 		}
+		unset($value);
 	}
 
 	public function commit(){

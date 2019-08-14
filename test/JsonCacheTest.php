@@ -2,8 +2,6 @@
 
 declare(strict_types=1);
 
-use Internet\InterCache\Exceptions\CacheStoreException;
-use Internet\InterCache\Result\CacheResult;
 use PHPUnit\Framework\TestCase;
 use Internet\InterCache\Cache\JsonFileCache;
 
@@ -19,13 +17,21 @@ final class JsonCacheTest extends TestCase {
 		return $cache;
 	}
 
-	public function testValidKey(){
-		$this->assertFalse(JsonFileCache::illegalKey("help"));
-		$this->assertFalse(JsonFileCache::illegalKey("big-dickers_123"));
+	/**
+	 * @depends testIsCreatable
+	 */
+	public function testValidKey(JsonFileCache $cache){
+		$this->assertTrue($cache->validate("help"));
+		$this->assertTrue($cache->validate("big-dickers_123"));
 	}
 
-	public function testInvalidKey(){
-		$this->assertTrue(JsonFileCache::illegalKey("help!"));
-		$this->assertTrue(JsonFileCache::illegalKey("+big-dickers_123"));
+	/**
+	 * @depends testIsCreatable
+	 */
+	public function testInvalidKey(JsonFileCache $cache){
+		$this->expectException(\Fig\Cache\InvalidArgumentException::class);
+
+		$cache->validate("help{}!");
+		$cache->validate("+@big-dickers_123");
 	}
 }
