@@ -2,7 +2,13 @@
 
 namespace Internet\InterCache\Result;
 
-class StdCacheResult implements CacheResult {
+use DateInterval;
+use DateTime;
+use DateTimeInterface;
+use Internet\InterCache\Exceptions\InvalidExpiryException;
+use Psr\Cache\CacheItemInterface;
+
+class StdCacheResult implements CacheItemInterface {
 	/**
 	 * @var int Internal store for expiry time.
 	 */
@@ -14,26 +20,81 @@ class StdCacheResult implements CacheResult {
 	private $data = null;
 
 	/**
-	 * StdResult constructor.
-	 * @param mixed $data
-	 * @param int $expiry Unix timestamp past which this result expires.
+	 * @var string Cache key.
 	 */
-	public function __construct($data, $expiry = 0){
-		$this->expiry = $expiry;
+	private $key = "";
+
+	/**
+	 * @var bool If the data was found in cache.
+	 */
+	private $hit = false;
+
+	/**
+	 * StdCacheResult constructor.
+	 * @param string $key
+	 * @param null $data
+	 * @param bool $hit
+	 * @param int|bool $expiry Unix timestamp past which this result expires. True if the result doesn't expire.
+	 */
+	public function __construct(string $key, $data = null, bool $hit = false, $expiry = false){
+		$this->key = $key;
 		$this->data = $data;
+		$this->expiry = $expiry;
+		$this->hit = $hit;
 	}
 
-	/** Check if this result has expired.
-	 * @return bool
-	 */
-	public function expired(): bool{
-		return time() >= $this->expiry;
+	public function getKey(){
+		return $this->key;
 	}
 
-	/** Fetch the stored data value.
-	 * @return mixed
-	 */
-	public function value(){
+	public function set($value){
+		$this->data = $value;
+	}
+
+	public function get(){
 		return $this->data;
+	}
+
+	public function isHit(){
+		return $this->hit;
+	}
+
+	/**
+	 * @param DateTimeInterface|null $expiration
+	 * @return CacheItemInterface|void
+	 * @throws InvalidExpiryException
+	 */
+	public function expiresAt($expiration){
+		if ($expiration instanceof DateTimeInterface){
+			$this->expiry = $expiration->getTimestamp();
+		} elseif (!$expiration) {
+			$this->expiry = false;
+		} else {
+			throw new InvalidExpiryException("expiration not DateTimeInterface, false or null.");
+		}
+	}
+
+	/**
+	 * @param DateInterval|int|null $time
+	 * @return CacheItemInterface|void
+	 * @throws InvalidExpiryException
+	 */
+	public function expiresAfter($time){
+		if (is_int($time)){
+			$this->expiry = time() + $time;
+		} elseif ($time instanceof DateInterval){
+			$this->expiry = (new DateTime())->add($time)->getTimestamp();
+		} elseif (!$time){
+			$this->expiry = false;
+		} else {
+			throw new InvalidExpiryException("time not integer, DateInterval, false or null.");
+		}
+	}
+
+	/** Get the time that this result should expire, or false if it shouldn't.
+	 * @return int|bool
+	 */
+	public function getExpiry(){
+		return $this->expiry;
 	}
 }
