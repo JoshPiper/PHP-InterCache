@@ -2,10 +2,10 @@
 
 namespace Internet\InterCache\Cache;
 
-use Internet\InterCache\Exceptions\InvalidKeyException;
-use Internet\InterCache\Result\StdCacheResult;
 use Psr\Cache\CacheItemInterface;
 use Psr\Cache\CacheItemPoolInterface;
+use Internet\InterCache\Result\StdCacheResult;
+use Internet\InterCache\Exceptions\InvalidKeyException;
 
 /**
  * Class ListCache
