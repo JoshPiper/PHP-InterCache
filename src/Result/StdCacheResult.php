@@ -33,14 +33,13 @@ class StdCacheResult implements CacheItemInterface {
 	 * StdCacheResult constructor.
 	 * @param string $key
 	 * @param null $data
-	 * @param bool $hit
 	 * @param int|bool $expiry Unix timestamp past which this result expires. True if the result doesn't expire.
 	 */
-	public function __construct(string $key, $data = null, bool $hit = false, $expiry = false){
+	public function __construct(string $key, $data = null, $expiry = false){
 		$this->key = $key;
 		$this->data = $data;
 		$this->expiry = $expiry;
-		$this->hit = $hit;
+		$this->hit = $expiry && $expiry >= time();
 	}
 
 	public function getKey(){
