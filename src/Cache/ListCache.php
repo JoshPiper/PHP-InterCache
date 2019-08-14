@@ -15,7 +15,7 @@ abstract class ListCache implements CacheItemPoolInterface {
 	protected $data = [];
 
 	protected static function illegalKey($key): bool{
-		return !preg_match("/[^\w_\-.]/", $key);
+		return preg_match("/[^\w\-.]/", $key) === false;
 	}
 
 	/**
