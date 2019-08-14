@@ -15,8 +15,9 @@ class JsonFileCache extends ListCache {
 	 */
 	public function __construct(string $filePath = '.cachestore'){
 		$rp = realpath($filePath);
-		if ($rp){$this->filePath = $rp;}
-
+		if ($rp){
+			$this->filePath = $rp;
+		}
 	}
 
 	public function load(): void {
@@ -30,7 +31,10 @@ class JsonFileCache extends ListCache {
 			$this->data = json_decode($cnt, true);
 		}
 	}
-	
+
+	/**
+	 * Dump the internal data representation to disk.
+	 */
 	public function save(): void {
 		$cnt = json_encode($this->data);
 
