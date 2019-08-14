@@ -64,6 +64,7 @@ abstract class ListCache implements CacheItemPoolInterface {
 		$this->commit();
 		return true;
 	}
+
 	public function deleteItems(array $keys){
 		if (count($keys) === 0){
 			return [];
@@ -79,6 +80,7 @@ abstract class ListCache implements CacheItemPoolInterface {
 		$this->saveDeferred($item);
 		$this->commit();
 	}
+
 	public function saveDeferred(CacheItemInterface $item){
 		$this->data[$item->getKey()] = [$item->getExpiry(), $item->get()];
 	}
