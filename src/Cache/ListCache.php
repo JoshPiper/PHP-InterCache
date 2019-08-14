@@ -14,8 +14,8 @@ use Psr\Cache\CacheItemPoolInterface;
 abstract class ListCache implements CacheItemPoolInterface {
 	protected $data = [];
 
-	protected static function illegalKey($key): bool{
-		return preg_match("/[^\w\-.]/", $key) === false;
+	public static function illegalKey($key): bool{
+		return preg_match("/[^\w\-.]/", $key) === 1;
 	}
 
 	/**

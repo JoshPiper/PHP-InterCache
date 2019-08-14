@@ -14,55 +14,18 @@ final class JsonCacheTest extends TestCase {
 	 */
 	public function testIsCreatable(): JsonFileCache{
 		$cache = new JsonFileCache(dirname(__DIR__) . '/cache/.testcache');
-		$cache->load();
 
 		$this->assertInstanceOf(JsonFileCache::class, $cache);
 		return $cache;
 	}
 
-	/**
-	 * @depends testIsCreatable
-	 * @param JsonFileCache $cache
-	 * @return JsonFileCache
-	 * @throws CacheStoreException
-	 */
-	public function testVarStores(JsonFileCache $cache): JsonFileCache {
-		$cache->store("validtest", "value1", 10);
-		$cache->store("invalidtest", "value2", -10);
-
-		// Otherwise PHPUnit complains about empty tests.
-		$this->assertTrue(true);
-
-		return $cache;
+	public function testValidKey(){
+		$this->assertFalse(JsonFileCache::illegalKey("help"));
+		$this->assertFalse(JsonFileCache::illegalKey("big-dickers_123"));
 	}
 
-	/**
-	 * @depends testVarStores
-	 * @param JsonFileCache $cache
-	 * @return JsonFileCache
-	 */
-	public function testVarRetrieves(JsonFileCache $cache): JsonFileCache {
-		$result = $cache->pull("validtest");
-		$this->assertInstanceOf(CacheResult::class, $result);
-		$this->assertEquals($result->expired(), false);
-		$this->assertEquals($result->value(), "value1");
-
-		$result = $cache->pull("invalidtest");
-		$this->assertInstanceOf(CacheResult::class, $result);
-		$this->assertEquals($result->expired(), true);
-		$this->assertEquals($result->value(), "value2");
-
-		return $cache;
-	}
-
-	/**
-	 * @depends testVarRetrieves
-	 * @param JsonFileCache $cache
-	 * @return JsonFileCache
-	 */
-	public function testSaves(JsonFileCache $cache): JsonFileCache{
-		$cache->save();
-		$this->assertTrue(true);
-		return $cache;
+	public function testInvalidKey(){
+		$this->assertTrue(JsonFileCache::illegalKey("help!"));
+		$this->assertTrue(JsonFileCache::illegalKey("+big-dickers_123"));
 	}
 }
