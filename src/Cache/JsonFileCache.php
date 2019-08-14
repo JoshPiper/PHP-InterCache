@@ -21,7 +21,9 @@ class JsonFileCache extends ListCache {
 		}
 
 		$cnt = @file_get_contents($this->filePath);
-		if ($cnt === false){return;}
+		if ($cnt === false){
+			return;
+		}
 
 		$this->data = json_decode($cnt, true);
 		foreach ($this->data as &$value){
