@@ -21,6 +21,7 @@
 	"require": {
 		"psr/cache": "1.0.1",
 		"ext-zlib": "*",
-		"ext-json": "*"
+		"ext-json": "*",
+		"fig/cache-util": "dev-master"
 	}
 }
