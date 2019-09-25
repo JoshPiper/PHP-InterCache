@@ -5,7 +5,8 @@
 	"keywords": [
 		"cache",
 		"caching",
-		"psr-6"
+		"psr-6",
+		"psr-16"
 	],
 	"autoload": {
 		"psr-4": {
@@ -20,6 +21,7 @@
 	},
 	"require": {
 		"psr/cache": "1.0.1",
+		"psr/simple-cache": "1.0.1",
 		"ext-zlib": "*",
 		"ext-json": "*",
 		"fig/cache-util": "dev-master"
