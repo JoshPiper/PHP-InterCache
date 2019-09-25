@@ -14,7 +14,8 @@
 		}
 	},
 	"require-dev": {
-		"phpunit/phpunit": "^8"
+		"phpunit/phpunit": "^8",
+		"cache/integration-tests": "^0.16.0"
 	},
 	"scripts": {
 		"wintest": "vendor\\bin\\phpunit.bat --bootstrap %CD%/vendor/autoload.php --testdox test"
