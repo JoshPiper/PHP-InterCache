@@ -6,6 +6,7 @@ use Psr\Cache\CacheItemInterface;
 use Psr\Cache\InvalidArgumentException;
 use Psr\SimpleCache\CacheInterface as SimpleCacheInterface;
 use Psr\Cache\CacheItemPoolInterface as CacheInterface;
+use Internet\InterCache\Exceptions\SimpleCacheInvalidArgumentException;
 
 /** Provides a wrapper for a PSR-6 compliant cache, providing a PSR-16 interface
  * Class Wrapper
@@ -27,92 +28,128 @@ class Wrapper implements SimpleCacheInterface {
 
 	/**
 	 * {@inheritDoc}
-	 * @throws InvalidArgumentException
+	 * @throws SimpleCacheInvalidArgumentException
 	 */
 	public function get($key, $default = null){
-		$res = $this->cache->getItem($key);
+		try {
+			$res = $this->cache->getItem($key);
 
-		if ($res->isHit()){
-			return $res->get();
-		} else {
-			return $default;
+			if ($res->isHit()){
+				return $res->get();
+			} else {
+				return $default;
+			}
+		} catch (InvalidArgumentException $exception){
+			throw new SimpleCacheInvalidArgumentException("Bad Key provided.", 1, $exception);
 		}
 	}
 
 	/**
 	 * {@inheritDoc}
-	 * @throws InvalidArgumentException
+	 * @throws SimpleCacheInvalidArgumentException
 	 */
 	public function set($key, $value, $ttl = null){
-		$res = $this->cache->getItem($key);
-		$res->expiresAfter($ttl);
-		$res->set($value);
-		$this->cache->save($res);
+		try {
+			$res = $this->cache->getItem($key);
+			$res->expiresAfter($ttl);
+			$res->set($value);
+			return $this->cache->save($res);
+		} catch (InvalidArgumentException $exception){
+			throw new SimpleCacheInvalidArgumentException("Bad Key provided to set.", 1, $exception);
+		}
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	public function clear(){
-		return false;
+		return $this->cache->clear();
 	}
 
 	/**
 	 * {@inheritDoc}
 	 * @param string[] $keys
-	 * @throws InvalidArgumentException
+	 * @throws SimpleCacheInvalidArgumentException
 	 */
 	public function getMultiple($keys, $default = null){
-		$out = [];
-		foreach ($this->cache->getItems($keys) as $res){
-			/** @var $res CacheItemInterface */
-			if ($res->isHit()){
-				$out[$res->getKey()] = $res->get();
-			}
+		if (!is_iterable($keys)){
+			throw new SimpleCacheInvalidArgumentException("No iterable provided to getMultiple");
 		}
-		return $out;
+
+		try {
+			$out = [];
+			foreach ($keys as $key){
+				$out[$key] = $this->get($key, $default);
+			}
+			return $out;
+		} catch (InvalidArgumentException $exception){
+			throw new SimpleCacheInvalidArgumentException("Bad Key: ${key}", 1, $exception);
+		}
 	}
 
 	/**
 	 * {@inheritDoc}
-	 * @throws InvalidArgumentException
-	 * @throws \Psr\SimpleCache\InvalidArgumentException
+	 * @throws SimpleCacheInvalidArgumentException
 	 */
 	public function setMultiple($values, $ttl = null){
-		foreach ($values as $key => $value){
-			$this->set($key, $value, $ttl);
+		if (!is_iterable($values)){
+			throw new SimpleCacheInvalidArgumentException("No iterable provided to setMultiple");
 		}
-		return true;
+
+		try {
+			foreach ($values as $key => $value){
+				if (is_int($key)){$key = (string)$key;}
+				$this->set($key, $value, $ttl);
+			}
+			return true;
+		} catch (InvalidArgumentException $exception){
+			throw new SimpleCacheInvalidArgumentException("Bad Key: ${key}", 1, $exception);
+		}
 	}
 
 	/** {@inheritDoc}
 	 * @param string $key
 	 * @return bool|void
-	 * @throws InvalidArgumentException
+	 * @throws SimpleCacheInvalidArgumentException
 	 */
 	public function delete($key){
-		$this->cache->deleteItem($key);
-		return true;
+		try {
+			$this->cache->deleteItem($key);
+			return true;
+		} catch (InvalidArgumentException $exception){
+			throw new SimpleCacheInvalidArgumentException("Bad Key provided to delete()", 1, $exception);
+		}
 	}
 
 	/**
 	 * {@inheritDoc}
-	 * @throws InvalidArgumentException
-	 * @throws \Psr\SimpleCache\InvalidArgumentException
+	 * @throws SimpleCacheInvalidArgumentException
 	 */
 	public function deleteMultiple($keys){
-		foreach ($keys as $key){
-			$this->delete($key);
+		if (!is_iterable($keys)){
+			throw new SimpleCacheInvalidArgumentException("No iterable provided to deleteMultiple");
 		}
-		return true;
+
+		try {
+			foreach ($keys as $key){
+				$this->delete($key);
+			}
+			return true;
+		} catch (InvalidArgumentException $exception){
+			throw new SimpleCacheInvalidArgumentException("Bad Key: ${key}", 1, $exception);
+		}
 	}
 
 	/** {@inheritDoc}
 	 * @param string $key
 	 * @return bool
-	 * @throws InvalidArgumentException
+	 * @throws SimpleCacheInvalidArgumentException
 	 */
 	public function has($key){
-		return $this->cache->hasItem($key);
+		try {
+			return $this->cache->hasItem($key);
+		} catch (InvalidArgumentException $exception){
+			throw new SimpleCacheInvalidArgumentException("Bad Key provided to has()", 1, $exception);
+		}
 	}
 }

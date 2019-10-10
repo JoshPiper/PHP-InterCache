@@ -2,6 +2,8 @@
 
 namespace Internet\InterCache\Cache;
 
+use Fig\Cache\CacheException;
+
 /** JsonFileCache implements a Cache, with a json file backing store (with optional compression).
  * Class JsonFileCache
  * @package Internet\InterCache\Cache
@@ -13,12 +15,18 @@ class JsonFileCache extends ListCache {
 	 * Create the cache and load in data from the FS.
 	 * JsonFileCache constructor.
 	 * @param string $filePath
+	 * @throws CacheException
 	 */
 	public function __construct(string $filePath = './.cachestore'){
-		$rp = realpath($filePath);
-		if ($rp){
-			$this->filePath = $rp;
+		$info = pathinfo($filePath);
+		$path = realpath($info['dirname']);
+		if (!$path){
+			throw new CacheException("Failed to find path.");
 		}
+
+		$path .= '/';
+		$path = $info['basename'];
+		$this->filePath = $path;
 
 		$cnt = @file_get_contents($this->filePath);
 		if ($cnt === false){
@@ -26,24 +34,32 @@ class JsonFileCache extends ListCache {
 		}
 
 		$this->data = json_decode($cnt, true);
+		// $this->data["{reserved}"] = [1, serialize("no")]; // Code coverage.
+
 		$now = time();
-		foreach ($this->data as $key => [$expiry, &$value]){
-			if ($expiry && $expiry < $now){
-				unset($this->data[$key]);
-			} else {
-				$value = unserialize($value);
+		if (is_array($this->data)){
+			foreach ($this->data as $key => [$expiry, $value]){
+				if ($expiry && $expiry < $now){
+					unset($this->data[$key]);
+				} else {
+					$this->data[$key] = [$expiry, unserialize($value)];
+				}
 			}
+		} else {
+			throw new CacheException("Failed to load from cachestore. {$this->filePath}");
 		}
-		unset($value);
+
 	}
 
 	public function commit(){
 		$data = $this->data;
-		foreach ($data as [$expiry, &$value]){
-			$value = serialize($value);
+		$out = [];
+		foreach ($data as $key => [$expiry, $value]){
+			$out[$key] = [$expiry, serialize($value)];
 		}
 
-		$data = json_encode($data);
-		file_put_contents($this->filePath, $data);
+		$out = json_encode($out);
+		file_put_contents($this->filePath, $out);
+		return true;
 	}
 }
