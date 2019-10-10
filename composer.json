@@ -1,5 +1,5 @@
 {
-	"name": "internet/inter-cache",
+	"name": "internet/intercache",
 	"description": "A lightweight PHP cross-request caching library.",
 	"license": "MIT",
 	"keywords": [
@@ -17,14 +17,11 @@
 		"phpunit/phpunit": "^5.7.21",
 		"cache/integration-tests": "^0.16"
 	},
-	"scripts": {
-		"wintest": "vendor\\bin\\phpunit.bat --bootstrap %CD%/vendor/autoload.php --testdox test"
-	},
 	"require": {
 		"psr/cache": "1.0.1",
 		"psr/simple-cache": "1.0.1",
 		"ext-zlib": "*",
 		"ext-json": "*",
-		"fig/cache-util": "dev-master"
+		"fig/cache-util": "dev-master@dev"
 	}
 }
