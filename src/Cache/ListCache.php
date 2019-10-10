@@ -5,6 +5,7 @@ namespace Internet\InterCache\Cache;
 use Fig\Cache\KeyValidatorTrait;
 use Psr\Cache\CacheItemInterface;
 use Psr\Cache\CacheItemPoolInterface;
+use Psr\Cache\InvalidArgumentException;
 use Internet\InterCache\Result\StdCacheResult;
 use Internet\InterCache\Exceptions\InvalidKeyException;
 
@@ -16,19 +17,22 @@ abstract class ListCache implements CacheItemPoolInterface {
 	use KeyValidatorTrait;
 	protected $data = [];
 
+	public function coerceKey($key){
+		$this->validateKey($key);
+		return $key;
+	}
+
 	/** {@inheritDoc}
 	 * @param string $key
 	 * @return StdCacheResult
 	 * @throws InvalidKeyException
 	 */
 	public function getItem($key): StdCacheResult{
-		if (!$this->validateKey($key)){
-			throw new InvalidKeyException();
-		}
+		$key = $this->coerceKey($key);
 
 		if (isset($this->data[$key])){
 			[$expiry, $data] = $this->data[$key];
-			return new StdCacheResult($key, $data, $expiry);
+			return new StdCacheResult($key, true, $data, $expiry);
 		}
 
 		return new StdCacheResult($key);
@@ -38,14 +42,19 @@ abstract class ListCache implements CacheItemPoolInterface {
 	 * @param string[] $keys
 	 * @return array
 	 * @throws InvalidKeyException
+	 * @throws InvalidArgumentException
 	 */
 	public function getItems(array $keys = []): array{
 		if (count($keys) === 0){
 			return [];
 		}
 
-		array_map($keys, [$this, 'validateKey']);
-		return array_map([$this, 'getItem'], $keys);
+		$data = [];
+		foreach ($keys as $key){
+			$data[$key] = $this->getItem($key);
+		}
+
+		return $data;
 	}
 
 	/**
@@ -54,16 +63,13 @@ abstract class ListCache implements CacheItemPoolInterface {
 	 * @throws InvalidKeyException
 	 */
 	public function hasItem($key){
-		if (!$this->validateKey($key)){
-			throw new InvalidKeyException();
-		}
-
-		return isset($this->data[$key]);
+		$key = $this->coerceKey($key);
+		return isset($this->data[$key]) && (!$this->data[$key][0] || $this->data[$key][0] > time());
 	}
 
 	public function clear(){
 		$this->data = [];
-		$this->commit();
+		return $this->commit();
 	}
 
 	/**
@@ -72,14 +78,8 @@ abstract class ListCache implements CacheItemPoolInterface {
 	 * @throws InvalidKeyException
 	 */
 	public function deleteItem($key){
-		if (!$this->validateKey($key)){
-			throw new InvalidKeyException();
-		}
-
-		unset($this->data[$key]);
-
-		$this->commit();
-		return true;
+		unset($this->data[$this->coerceKey($key)]);
+		return $this->commit();
 	}
 
 	/**
@@ -89,25 +89,30 @@ abstract class ListCache implements CacheItemPoolInterface {
 	 */
 	public function deleteItems(array $keys){
 		if (count($keys) === 0){
-			return [];
+			return true;
 		}
 
-		array_map($keys, [$this, 'validateKey']);
 		array_map([$this, 'deleteItem'], $keys);
 		return true;
 	}
 
 	public function save(CacheItemInterface $item){
 		$this->saveDeferred($item);
-		$this->commit();
+		return $this->commit();
 	}
 
 	public function saveDeferred(CacheItemInterface $item){
 		/** @var $item StdCacheResult */
-		$this->data[$item->getKey()] = [$item->getExpiry(), $item->get()];
+		if (is_object($item->get())){
+			$this->data[$item->getKey()] = [$item->getExpiry(), clone $item->get()];
+		} else {
+			$this->data[$item->getKey()] = [$item->getExpiry(), $item->get()];
+		}
+
+		return true;
 	}
 
-	public function validate($key){
-		return $this->validateKey($key);
+	public function __destruct(){
+		$this->commit();
 	}
 }

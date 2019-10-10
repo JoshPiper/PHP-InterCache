@@ -32,14 +32,15 @@ class StdCacheResult implements CacheItemInterface {
 	/**
 	 * StdCacheResult constructor.
 	 * @param string $key
+	 * @param bool $hit
 	 * @param null $data
-	 * @param int|bool $expiry Unix timestamp past which this result expires. True if the result doesn't expire.
+	 * @param int|bool $expiry Unix timestamp past which this result expires. Null if the result doesn't expire.
 	 */
-	public function __construct(string $key, $data = null, $expiry = false){
+	public function __construct(string $key, $hit = false, $data = null, $expiry = null){
 		$this->key = $key;
 		$this->data = $data;
 		$this->expiry = $expiry;
-		$this->hit = $expiry && $expiry >= time();
+		$this->hit = $hit && ($expiry === null || $expiry > time());
 	}
 
 	public function getKey(){
@@ -48,9 +49,12 @@ class StdCacheResult implements CacheItemInterface {
 
 	public function set($value){
 		$this->data = $value;
+		$this->hit = true;
+		return $this;
 	}
 
 	public function get(){
+		if (!$this->isHit()){return null;}
 		return $this->data;
 	}
 
@@ -66,28 +70,32 @@ class StdCacheResult implements CacheItemInterface {
 	public function expiresAt($expiration){
 		if ($expiration instanceof DateTimeInterface){
 			$this->expiry = $expiration->getTimestamp();
-		} elseif (!$expiration) {
-			$this->expiry = false;
+		} elseif ($expiration === null) {
+			$this->expiry = $expiration;
 		} else {
 			throw new InvalidExpiryException("expiration not DateTimeInterface, false or null.");
 		}
+		return $this;
 	}
 
 	/**
 	 * @param DateInterval|int|null $time
 	 * @return CacheItemInterface|void
 	 * @throws InvalidExpiryException
+	 * @throws \Exception
 	 */
 	public function expiresAfter($time){
 		if (is_int($time)){
 			$this->expiry = time() + $time;
 		} elseif ($time instanceof DateInterval){
 			$this->expiry = (new DateTime())->add($time)->getTimestamp();
-		} elseif (!$time){
-			$this->expiry = false;
+		} elseif ($time === null){
+			$this->expiry = $time;
 		} else {
 			throw new InvalidExpiryException("time not integer, DateInterval, false or null.");
 		}
+
+		return $this;
 	}
 
 	/** Get the time that this result should expire, or false if it shouldn't.
