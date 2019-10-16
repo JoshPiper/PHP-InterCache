@@ -30,7 +30,7 @@ class JsonFileCache extends ListCache {
 			$this->data = [];
 		} else {
 			$cnt = @file_get_contents($this->filePath);
-			if ($cnt === false){
+			if ($cnt === false || $cnt === ''){
 				$cnt = '[]';
 			}
 
