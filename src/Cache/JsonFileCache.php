@@ -28,12 +28,16 @@ class JsonFileCache extends ListCache {
 		$path = $info['basename'];
 		$this->filePath = $path;
 
-		$cnt = @file_get_contents($this->filePath);
-		if ($cnt === false){
-			return;
-		}
+		if (!file_exists($this->filePath)){
+			$this->data = [];
+		} else {
+			$cnt = @file_get_contents($this->filePath);
+			if ($cnt === false){
+				$cnt = '[]';
+			}
 
-		$this->data = json_decode($cnt, true);
+			$this->data = json_decode($cnt, true);
+		}
 		// $this->data["{reserved}"] = [1, serialize("no")]; // Code coverage.
 
 		$now = time();
