@@ -25,9 +25,7 @@ class JsonFileCache extends ListCache {
 		}
 
 		$path .= '/';
-		$path = $info['basename'];
-		$this->filePath = $path;
-
+		$this->filePath = $info['dirname'] . '/' . $info['basename'];
 		if (!file_exists($this->filePath)){
 			$this->data = [];
 		} else {
