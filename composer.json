@@ -9,6 +9,14 @@
 		"psr-16"
 	],
 
+	"scripts": {
+		"test": "phpunit --bootstrap vendor/autoload.php --colors=never --whitelist src/ --testdox-html test.html --coverage-clover=coverage.xml tests",
+		"pcov-polyfill": [
+			"@composer require --dev pcov/clobber",
+			"pcov clobber"
+		]
+	},
+
 	"require": {
 		"psr/cache": "1.0.1",
 		"psr/simple-cache": "1.0.1",
