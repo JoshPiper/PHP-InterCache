@@ -1,0 +1,27 @@
+<?xml version="1.0" ?>
+<phpunit
+        bootstrap="vendor/autoload.php"
+        colors="true"
+
+        convertDeprecationsToExceptions="true"
+        convertNoticesToExceptions="true"
+        convertWarningsToExceptions="true"
+>
+    <testsuites>
+        <testsuite name="unit">
+            <directory>tests</directory>
+        </testsuite>
+    </testsuites>
+
+    <filter>
+        <whitelist>
+            <directory suffix=".php">src</directory>
+        </whitelist>
+    </filter>
+
+    <logging>
+        <log type="coverage-text" target="coverage.txt"></log>
+        <log type="coverage-html" target="coverage"></log>
+        <log type="testdox-html" target="report.html"></log>
+    </logging>
+</phpunit>
